@@ -1,0 +1,92 @@
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const app = express();
+const port = 3000;
+
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("server is running hahaha");
+});
+
+const uri =
+  "mongodb+srv://habit-tracker:EG2sGvmO7IhBlGkP@cluster0.qa09sjl.mongodb.net/?appName=Cluster0";
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+async function run() {
+  try {
+    await client.connect();
+
+    // collections
+    const db = client.db("habit-tracker");
+    const habitCollection = db.collection("habits");
+
+    // crud operation starts here
+    //get method
+
+    app.get("/habits", async (req, res) => {
+       const {email} = req.query
+       const query = {}
+       if(email){
+        query.createdBy = email;
+       }
+      const result = await habitCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // for 6 data
+    app.get("/habits/limited", async (req, res) => {
+      const result = await habitCollection
+        .find()
+        .sort({
+          createdAt: -1,
+        })
+        .limit(6)
+        .toArray();
+      res.send(result);
+    });
+
+    app.get("/habits/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await habitCollection.findOne({ _id: new ObjectId(id) });
+
+      res.send(result);
+    });
+
+    // get email
+
+
+
+    // post method
+
+    app.post("/habits", async (req, res) => {
+      const data = req.body;
+      console.log(data);
+      const result = await habitCollection.insertOne(data);
+      res.send({
+        success: true,
+        result,
+      });
+    });
+
+    await client.db("admin").command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
+  } finally {
+  }
+}
+run().catch(console.dir);
+
+app.listen(port, () => {
+  console.log(`surver running  on port ${port}`);
+});
