@@ -62,11 +62,7 @@ async function run() {
       res.send(result);
     });
 
-    // get email
-
-
-
-    // post method
+   
 
     app.post("/habits", async (req, res) => {
       const data = req.body;
