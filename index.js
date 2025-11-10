@@ -127,6 +127,10 @@ app.patch("/habits/:id/complete", async (req, res) => {
      const currentDate = new Date().toISOString().split("T")[0];
 
 
+        if (!habit.completionHistory) {
+      habit.completionHistory = [];
+    }
+
 
 
 
