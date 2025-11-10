@@ -34,11 +34,11 @@ async function run() {
     //get method
 
     app.get("/habits", async (req, res) => {
-       const {email} = req.query
-       const query = {}
-       if(email){
+      const { email } = req.query;
+      const query = {};
+      if (email) {
         query.createdBy = email;
-       }
+      }
       const result = await habitCollection.find(query).toArray();
       res.send(result);
     });
@@ -62,8 +62,6 @@ async function run() {
       res.send(result);
     });
 
-   
-
     app.post("/habits", async (req, res) => {
       const data = req.body;
       console.log(data);
@@ -73,6 +71,38 @@ async function run() {
         result,
       });
     });
+
+    // update habits
+    app.put("/habits/:id", async (req, res) => {
+      const id = req.params;
+      const updatedData = req.body;
+
+      const filter = { _id: new ObjectId(id) };
+      const updatedoc = {
+        $set: {
+          title: updatedData.title,
+          category: updatedData.category,
+          image: updatedData.image,
+          currentStreak: updatedData.currentStreak,
+          updatedAt: new Date(),
+        },
+      };
+
+      const result = await habitCollection.updateOne(filter, updatedoc);
+      res.send(result);
+    });
+
+    // delete habit
+
+    app.delete('/habits/:id', async (req,res)=>{
+      const {id} = req.params;
+      const filter = {_id: new ObjectId(id)}
+      const result = await habitCollection.deleteOne(filter)
+      res.send({
+        success: true,
+        result
+      })
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log(
