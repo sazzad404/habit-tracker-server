@@ -131,6 +131,9 @@ app.patch("/habits/:id/complete", async (req, res) => {
       habit.completionHistory = [];
     }
 
+       const alreadyCompleted = habit.completionHistory.some(
+      (item) => item.date === currentDate
+    );
 
 
 
