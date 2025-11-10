@@ -83,7 +83,7 @@ async function run() {
           title: updatedData.title,
           category: updatedData.category,
           image: updatedData.image,
-          currentStreak: updatedData.currentStreak,
+          streak: updatedData.streak,
           updatedAt: new Date(),
         },
       };
