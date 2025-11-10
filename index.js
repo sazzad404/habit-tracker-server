@@ -122,6 +122,8 @@ app.patch("/habits/:id/complete", async (req, res) => {
   const { id } = req.params;
   const filter = { _id: new ObjectId(id) };
 
+  try {
+    const habit = await habitCollection.findOne(filter);
 
 
 
