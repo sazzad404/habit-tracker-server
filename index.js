@@ -124,6 +124,7 @@ app.patch("/habits/:id/complete", async (req, res) => {
 
   try {
     const habit = await habitCollection.findOne(filter);
+     const currentDate = new Date().toISOString().split("T")[0];
 
 
 
