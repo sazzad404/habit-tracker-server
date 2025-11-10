@@ -64,7 +64,11 @@ async function run() {
 
     app.post("/habits", async (req, res) => {
       const data = req.body;
-      console.log(data);
+      if (data.streak === undefined || data.streak === null) {
+        data.streak = 0;
+      }
+      data.createdAt = new Date();
+
       const result = await habitCollection.insertOne(data);
       res.send({
         success: true,
@@ -83,7 +87,7 @@ async function run() {
           title: updatedData.title,
           category: updatedData.category,
           image: updatedData.image,
-          streak: updatedData.streak,
+          streak: Number(updatedData.streak) || 0,
           updatedAt: new Date(),
         },
       };
@@ -94,16 +98,39 @@ async function run() {
 
     // delete habit
 
-    app.delete('/habits/:id', async (req,res)=>{
-      const {id} = req.params;
-      const filter = {_id: new ObjectId(id)}
-      const result = await habitCollection.deleteOne(filter)
+    app.delete("/habits/:id", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
+      const result = await habitCollection.deleteOne(filter);
       res.send({
         success: true,
-        result
-      })
-    })
+        result,
+      });
+    });
 
+
+
+
+
+
+
+
+
+    // mark habit as complete
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
