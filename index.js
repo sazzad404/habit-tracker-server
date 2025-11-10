@@ -135,6 +135,13 @@ app.patch("/habits/:id/complete", async (req, res) => {
       (item) => item.date === currentDate
     );
 
+    if (alreadyCompleted) {
+      return res.send({
+        success: false,
+        message: "আজকে তুমি ইতিমধ্যেই এই habit complete করেছো ✅",
+      });
+    }
+
 
 
 
