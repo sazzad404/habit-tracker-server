@@ -108,74 +108,76 @@ async function run() {
       });
     });
 
-
-
-
-
-
-
-
-
     // mark habit as complete
 
-app.patch("/habits/:id/complete", async (req, res) => {
-  const { id } = req.params;
-  const filter = { _id: new ObjectId(id) };
+    app.patch("/habits/:id/complete", async (req, res) => {
+      const { id } = req.params;
+      const filter = { _id: new ObjectId(id) };
 
-  try {
-    const habit = await habitCollection.findOne(filter);
-     const currentDate = new Date().toISOString().split("T")[0];
-
+      try {
+        const habit = await habitCollection.findOne(filter);
+        const currentDate = new Date().toISOString().split("T")[0];
 
         if (!habit.completionHistory) {
-      habit.completionHistory = [];
+          habit.completionHistory = [];
+        }
+
+        const alreadyCompleted = habit.completionHistory.some(
+          (item) => item.date === currentDate
+        );
+
+        if (alreadyCompleted) {
+          return res.send({
+            success: false,
+            message: "আজকে তুমি ইতিমধ্যেই এই habit complete করেছো ✅",
+          });
+        }
+
+        await habitCollection.updateOne(filter, {
+          $push: {
+            completionHistory: { date: currentDate, time: new Date() },
+          },
+        });
+
+        const updatedHabit = await habitCollection.findOne(filter);
+        const streak = calculateStreak(updatedHabit.completionHistory);
+
+        await habitCollection.updateOne(filter, { $set: { streak } });
+
+        res.send({
+          success: true,
+          message: "Habit marked as completed for today! 🎉",
+          streak,
+        });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({
+          success: false,
+          message: "Something went wrong while marking complete.",
+        });
+      }
+    });
+
+    // helper func
+    function calculateStreak(history) {
+      if (!history || history.length === 0) return 0;
+
+      const dates = history.map((h) => new Date(h.date)).sort((a, b) => b - a); // নতুন থেকে পুরাতন sort
+
+      let streak = 1;
+
+      for (let i = 0; i < dates.length - 1; i++) {
+        const diff = (dates[i] - dates[i + 1]) / (1000 * 60 * 60 * 24);
+        if (diff === 1) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      return streak;
     }
 
-       const alreadyCompleted = habit.completionHistory.some(
-      (item) => item.date === currentDate
-    );
-
-    if (alreadyCompleted) {
-      return res.send({
-        success: false,
-        message: "আজকে তুমি ইতিমধ্যেই এই habit complete করেছো ✅",
-      });
-    }
-
-     await habitCollection.updateOne(filter, {
-      $push: {
-        completionHistory: { date: currentDate, time: new Date() },
-      },
-    });
-
-
-    const updatedHabit = await habitCollection.findOne(filter);
-    const streak = calculateStreak(updatedHabit.completionHistory);
-
-
-  await habitCollection.updateOne(filter, { $set: { streak } });
-
-    res.send({
-      success: true,
-      message: "Habit marked as completed for today! 🎉",
-      streak,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      success: false,
-      message: "Something went wrong while marking complete.",
-    });
-  }
-});
-
-
-// helper func
-
-
-
-
-    
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
