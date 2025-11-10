@@ -142,6 +142,12 @@ app.patch("/habits/:id/complete", async (req, res) => {
       });
     }
 
+     await habitCollection.updateOne(filter, {
+      $push: {
+        completionHistory: { date: currentDate, time: new Date() },
+      },
+    });
+
 
 
 
