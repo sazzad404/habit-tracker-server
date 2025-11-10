@@ -153,7 +153,21 @@ app.patch("/habits/:id/complete", async (req, res) => {
     const streak = calculateStreak(updatedHabit.completionHistory);
 
 
+  await habitCollection.updateOne(filter, { $set: { streak } });
 
+    res.send({
+      success: true,
+      message: "Habit marked as completed for today! 🎉",
+      streak,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: "Something went wrong while marking complete.",
+    });
+  }
+});
 
 
 
