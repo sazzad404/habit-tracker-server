@@ -170,6 +170,8 @@ app.patch("/habits/:id/complete", async (req, res) => {
 });
 
 
+// helper func
+
 
 
 
