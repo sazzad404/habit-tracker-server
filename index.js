@@ -149,6 +149,10 @@ app.patch("/habits/:id/complete", async (req, res) => {
     });
 
 
+    const updatedHabit = await habitCollection.findOne(filter);
+    const streak = calculateStreak(updatedHabit.completionHistory);
+
+
 
 
 
