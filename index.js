@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;;
 
 app.use(cors());
 app.use(express.json());
@@ -11,8 +13,7 @@ app.get("/", (req, res) => {
   res.send("server is running hahaha");
 });
 
-const uri =
-  "mongodb+srv://habit-tracker:EG2sGvmO7IhBlGkP@cluster0.qa09sjl.mongodb.net/?appName=Cluster0";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qa09sjl.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -129,7 +130,7 @@ async function run() {
         if (alreadyCompleted) {
           return res.send({
             success: false,
-            message: "আজকে তুমি ইতিমধ্যেই এই habit complete করেছো ✅",
+            message: "your habit already completed",
           });
         }
 
